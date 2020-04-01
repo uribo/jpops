@@ -1,0 +1,15 @@
+Package: jpops
+Title: Provides a Data Set on the Population in Japan
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Shinya",
+           family = "Uryu",
+           role = c("aut", "cre"),
+           email = "suika1127@gmail.com",
+           comment = c(ORCID = "0000-0002-0493-6186"))
+Description: Information on the population and household
+    registers, as published by the census and each local authority.  The
+    acquired data will be returned in a tidy format.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
