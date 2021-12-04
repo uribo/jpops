@@ -206,4 +206,68 @@ df_pref33_raw2 <-
   read_excel(dest_file, sheet = 1, range = "A12:S26")
 
 
+# 36.  徳島県 ----------------------------------------------------------------
+# 徳島県推計人口
+# 手動ダウンロード
+# domain <- "https://www.pref.tokushima.lg.jp"
+# dl_file <-
+#   read_html(glue::glue("/{domain}/statistics/month/jinkou/"))
+# dl_file <-
+#   dl_file %>%
+#   html_nodes(css = "body > div.cms-public > div > div > div.area-group-2-3-4 > div > div > div > div:nth-child(9) > div > ul > li > a") %>%
+#   html_attr("href") %>%
+#   stringr::str_subset(".xlsx")
+# dest_file <-
+#   glue::glue("data-raw/pref-38_{file}",
+#              file = basename(dl_file))
+# download.file(
+#   glue::glue("{domain}{dl_file}")[1],
+#   destfile = dest_file[1])
+jpop_pref36 <- function(path) {
+  start_index <-
+    readxl::read_excel(path,
+                       n_max = 10,
+                       col_names = FALSE) %>%
+    pull(1) %>%
+    stringr::str_which("計$") %>%
+    min() -1
+  readxl::read_excel(path,
+                      skip = start_index,
+                      col_names = FALSE) %>%
+    filter(!is.na(`...1`)) %>%
+    purrr::set_names(c("市町村",
+                       paste0("推計人口_",
+                              c("総数", "男", "女")),
+                       "増減",
+                       paste("自然動態",
+                             c(rep("出生", 3),
+                               rep("死亡", 3)),
+                             rep(c("総数", "男", "女"), times = 2),
+                             sep = "_"),
+                       "自然動態_増減",
+                       paste("社会動態",
+                             c(rep("転入", 3),
+                               rep("転出", 3)),
+                             rep(c("総数", "男", "女"), times = 2),
+                             sep = "_"),
+                       "社会動態_増減",
+                       "世帯推計数",
+                       paste("世帯の移動",
+                             c("増加", "減少", "増減計"),
+                             sep = "_"),
+                       "1世帯あたりの人員")) %>%
+    mutate(date = readxl::read_excel(path,
+                                    n_max = 1,
+                                    col_names = FALSE) %>%
+             pull(1) %>%
+             stringr::str_remove_all("[[:space:]]") %>%
+             zipangu::convert_jdate()) %>%
+    relocate(date, .before = 1)
+}
+
+# jpop_pref36("data-raw/pref36_20210101.xlsx")
+# jpop_pref36("data-raw/pref36_20210201.xlsx")
+# jpop_pref36("data-raw/pref36_20210301.xlsx")
+# jpop_pref36("data-raw/pref36_20200101.xls")
+# jpop_pref36("data-raw/pref36_20010101.xls")
 
