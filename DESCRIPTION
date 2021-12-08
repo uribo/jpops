@@ -10,6 +10,19 @@ Authors@R:
 Description: Information on the population and household registers, as 
   published by the census and each local authority. The acquired data will be 
   returned in a tidy format.
+Imports: 
+    cli (>= 3.1.0),
+    estatapi,
+    dplyr,
+    glue (>= 1.5.1),
+    lifecycle (>= 1.0.1),
+    magrittr (>= 2.0.1),
+    rappdirs,
+    rlang (>= 0.4.12),
+    stringr,
+    withr (>= 2.4.3)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.1.2
+Roxygen: list(markdown = TRUE)

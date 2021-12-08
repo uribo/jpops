@@ -2,3 +2,5 @@
 ^renv\.lock$
 ^jpops\.Rproj$
 ^\.Rproj\.user$
+^LICENSE\.md$
+^data-raw$
