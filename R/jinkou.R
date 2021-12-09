@@ -13,7 +13,7 @@ get_jinkou <- function(year, appid, cache = TRUE) {
     if (!file.exists(cache_dir)) {
       dir.create(cache_dir, recursive = TRUE)
     }
-    rds = paste("jinkou", year, ".rds")
+    rds = paste0("jinkou_", year, ".rds")
     file_loc <- file.path(cache_dir, rds)
     if (file.exists(file_loc)) {
       out <- readRDS(file_loc)
