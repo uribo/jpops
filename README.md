@@ -3,6 +3,8 @@
 
 # jpops <img src="man/figures/logo.png" align="right" width="120px" />
 
+(Sorry, English version of README is not availavle for now.)
+
 <!-- badges: start -->
 
 [![CRAN
@@ -34,7 +36,7 @@ library(jpops)
 
 ### 国勢調査
 
-人口等基本集計
+人口等基本集計 (2020\~2000)
 
 ``` r
 Sys.setenv("ESTAT_TOKEN") <- "{取得したapplication id}"
