@@ -59,12 +59,14 @@ survey_year_dataid <- list(
     `2005` = "0000033784"),
   `age` = c(# 2-5-1
     `2020` = "0003445139",
-    # 00310
-    `2015` = "0003149249",
+    # 00310 gun-kei
+    # 00320
+    `2015` = "0003148521",
     # 00320
     `2010` = "0003041389",
-    # 00401
-    `2005` = "0000033697"))
+    # 00401 0000033697 gun-kei
+    # todouhuken
+    `2005` = "0000033787"))
 
 select_jinkou_cols <- function(df) {
   cat01_code <- cat02_code <- area_code <- area <- gender <- NULL
@@ -109,8 +111,8 @@ collect_jinkou_raw <- function(year, appid) {
 }
 
 collect_jinkou_age_raw <- function(year, appid) {
-  tab_code <- cat01_code <- cat03_code <- cat04_code <- NULL
-  gender <- age <- NULL
+  tab_code <- cat01_code <- cat02_code <- cat03_code <- cat04_code <- NULL
+  unit <- gender <- age <- NULL
   year <- as.character(year)
   year <- rlang::arg_match(year,
                            as.character(seq.int(2000, 2020, by = 5)))
@@ -135,7 +137,10 @@ collect_jinkou_age_raw <- function(year, appid) {
                     area = 6)
   } else if (year == "2015") {
     df_raw %>%
-      dplyr::filter(cat01_code == "00710", cat04_code == "0000") %>%
+      dplyr::filter(cat01_code == "00710",
+                    cat02_code == "0000",
+                    unit == intToUtf8(20154),
+                    cat04_code == "0000") %>%
       dplyr::select(5:8, 11:12, 16) %>%
       dplyr::rename(gender = 4,
              age = 2,
@@ -153,6 +158,7 @@ collect_jinkou_age_raw <- function(year, appid) {
   } else if (year == "2010") {
     df_raw %>%
       dplyr::filter(cat01_code == "00710",
+                    unit == intToUtf8(20154),
                     cat03_code == "000") %>%
       dplyr::select(5:6, 9:10, 11:12, 16) %>%
       dplyr::rename(gender = 2,

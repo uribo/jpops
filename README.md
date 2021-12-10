@@ -37,6 +37,8 @@ remotes::install_github("uribo/jpops")
     -   キャッシュ先のフォルダは `rappdirs::user_cache_dir("jpops")`
         で確認できます。
 -   データをtidyな状態で提供します。
+    -   調査時期によって異なる列名をパッケージ内で統一します（例.
+        性別を`gender`、地域は`area`、年齢は`age`）。これにより複数年を跨いだデータの分析が容易になります。
 
 ## Example
 
