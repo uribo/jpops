@@ -110,6 +110,7 @@ collect_jinkou_raw <- function(year, appid) {
 
 collect_jinkou_age_raw <- function(year, appid) {
   tab_code <- cat01_code <- cat03_code <- cat04_code <- NULL
+  gender <- age <- NULL
   year <- as.character(year)
   year <- rlang::arg_match(year,
                            as.character(seq.int(2000, 2020, by = 5)))
@@ -138,7 +139,17 @@ collect_jinkou_age_raw <- function(year, appid) {
       dplyr::select(5:8, 11:12, 16) %>%
       dplyr::rename(gender = 4,
              age = 2,
-             area = 6)
+             area = 6) %>%
+      dplyr::mutate(gender = conv_gender_vars(gender),
+                    age = dplyr::if_else(
+                      stringr::str_detect(age,
+                                          paste0("(",
+                                                 intToUtf8(c(32207, 25968)),
+                                                 "|",
+                                                 intToUtf8(24180, 40802),
+                                                 ")")),
+                                          intToUtf8(c(32207, 25968)),
+                      age))
   } else if (year == "2010") {
     df_raw %>%
       dplyr::filter(cat01_code == "00710",
@@ -146,7 +157,17 @@ collect_jinkou_age_raw <- function(year, appid) {
       dplyr::select(5:6, 9:10, 11:12, 16) %>%
       dplyr::rename(gender = 2,
                     age = 4,
-                    area = 6)
+                    area = 6) %>%
+      dplyr::mutate(gender = conv_gender_vars(gender),
+                    age = dplyr::if_else(
+                      stringr::str_detect(age,
+                                          paste0("(",
+                                                 intToUtf8(c(32207, 25968)),
+                                                 "|",
+                                                 intToUtf8(24180, 40802),
+                                                 ")")),
+                      intToUtf8(c(32207, 25968)),
+                      age))
   } else if (year == "2005") {
     df_raw %>%
       dplyr::filter(cat01_code == "00700") %>%
