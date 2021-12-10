@@ -2,5 +2,5 @@
 .Rhistory
 .RData
 .DS_Store
-data-raw/*.xls
-data-raw/*.xlsx
+*.xls
+*.xlsx
