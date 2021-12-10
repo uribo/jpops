@@ -28,6 +28,16 @@ if (!requireNamespace("remotes"))
 remotes::install_github("uribo/jpops")
 ```
 
+## 特徴
+
+-   必要なデータを参照するための関数を提供します。
+-   データの取得はe-Stat
+    APIを経由して行いますが、パッケージ内でキャッシュ機能を利用できます。
+    これによりデータの再取得にかかる時間を短縮できます。
+    -   キャッシュ先のフォルダは `rappdirs::user_cache_dir("jpops")`
+        で確認できます。
+-   データをtidyな状態で提供します。
+
 ## Example
 
 ``` r
