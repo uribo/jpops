@@ -7,7 +7,7 @@
 #' @param cache save to cache
 #' @rdname jinkou
 #' @export
-get_jinkou <- function(year, appid, cache = TRUE) {
+get_jinkou <- function(year, appid = NULL, cache = TRUE) {
   if (cache) {
     cache_dir <- rappdirs::user_cache_dir("jpops")
     if (!file.exists(cache_dir)) {
@@ -30,11 +30,41 @@ get_jinkou <- function(year, appid, cache = TRUE) {
   }
 }
 
-survey_year_dataid <- c(
-  `2020` = "0003445078",
-  `2015` = "0003149040",
-  `2010` = "0003038587",
-  `2005` = "0000033784")
+#' @rdname jinkou
+#' @export
+get_jinkou_age <- function(year, appid = NULL, cache = TRUE) {
+  if (cache) {
+    cache_dir <- rappdirs::user_cache_dir("jpops")
+    file_loc <- file.path(cache_dir,
+                          paste0("jinkou_age_", year, ".rds"))
+    if (file.exists(file_loc)) {
+      out <-
+        readRDS(file_loc)
+    } else {
+      out <-
+        collect_jinkou_age_raw(year, appid)
+      saveRDS(out, file_loc)
+    }
+    out
+  } else {
+    collect_jinkou_age_raw(year, appid)
+  }
+}
+
+survey_year_dataid <- list(
+  `total` = c(
+    `2020` = "0003445078",
+    `2015` = "0003149040",
+    `2010` = "0003038587",
+    `2005` = "0000033784"),
+  `age` = c(# 2-5-1
+    `2020` = "0003445139",
+    # 00310
+    `2015` = "0003149249",
+    # 00320
+    `2010` = "0003041389",
+    # 00401
+    `2005` = "0000033697"))
 
 select_jinkou_cols <- function(df) {
   cat01_code <- cat02_code <- area_code <- area <- gender <- NULL
@@ -55,7 +85,7 @@ collect_jinkou_raw <- function(year, appid) {
                            as.character(seq.int(2000, 2020, by = 5)))
   df_raw <-
     estatapi::estat_getStatsData(appId = appid,
-                                 statsDataId = survey_year_dataid[year])
+                                 statsDataId = survey_year_dataid$total[year])
   if (year == "2020") {
     df_raw %>%
       select_jinkou_cols()
@@ -75,5 +105,54 @@ collect_jinkou_raw <- function(year, appid) {
         area_code == "12229" & area == intToUtf8(c(34966, 12534, 28006, 24066)),
         intToUtf8(c(34966, 12465, 28006, 24066)),
         area))
+  }
+}
+
+collect_jinkou_age_raw <- function(year, appid) {
+  tab_code <- cat01_code <- cat03_code <- cat04_code <- NULL
+  year <- as.character(year)
+  year <- rlang::arg_match(year,
+                           as.character(seq.int(2000, 2020, by = 5)))
+  cache_dir <- rappdirs::user_cache_dir("jpops")
+  file_loc <- file.path(cache_dir,
+                        paste0("jinkou_age_", year, "_raw.rds"))
+  if (file.exists(file_loc)) {
+    df_raw <-
+      readRDS(file_loc)
+  } else {
+    df_raw <-
+      estatapi::estat_getStatsData(appId = appid,
+                                   statsDataId = survey_year_dataid$age[year])
+    saveRDS(df_raw, file_loc)
+  }
+  if (year == "2020") {
+    df_raw %>%
+      dplyr::filter(cat01_code == "0") %>%
+      dplyr::select(5:10, 14) %>%
+      dplyr::rename(gender = 2,
+                    age = 4,
+                    area = 6)
+  } else if (year == "2015") {
+    df_raw %>%
+      dplyr::filter(cat01_code == "00710", cat04_code == "0000") %>%
+      dplyr::select(5:8, 11:12, 16) %>%
+      dplyr::rename(gender = 4,
+             age = 2,
+             area = 6)
+  } else if (year == "2010") {
+    df_raw %>%
+      dplyr::filter(cat01_code == "00710",
+                    cat03_code == "000") %>%
+      dplyr::select(5:6, 9:10, 11:12, 16) %>%
+      dplyr::rename(gender = 2,
+                    age = 4,
+                    area = 6)
+  } else if (year == "2005") {
+    df_raw %>%
+      dplyr::filter(cat01_code == "00700") %>%
+      dplyr::select(3:8, 12) %>%
+      dplyr::rename(gender = 4,
+                    age = 2,
+                    area = 6)
   }
 }

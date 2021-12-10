@@ -2,9 +2,12 @@
 % Please edit documentation in R/jinkou.R
 \name{get_jinkou}
 \alias{get_jinkou}
+\alias{get_jinkou_age}
 \title{Obtain data for the Population Census}
 \usage{
-get_jinkou(year, appid, cache = TRUE)
+get_jinkou(year, appid = NULL, cache = TRUE)
+
+get_jinkou_age(year, appid = NULL, cache = TRUE)
 }
 \arguments{
 \item{year}{year}

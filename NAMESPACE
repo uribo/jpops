@@ -3,6 +3,7 @@
 export("%>%")
 export(conv_gender_vars)
 export(get_jinkou)
+export(get_jinkou_age)
 import(rlang)
 importFrom(glue,glue)
 importFrom(lifecycle,deprecated)
