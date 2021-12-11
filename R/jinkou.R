@@ -97,7 +97,7 @@ collect_jinkou_raw <- function(year, appid) {
                     cat02_code %in% c("010", "020", "030")) %>%
       select_jinkou_cols() %>%
       dplyr::mutate(gender = conv_gender_vars(gender))
-  } else if (year %in% c("2010", "2015")) {
+  } else if (year == "2010") {
     df_raw %>%
       dplyr::filter(cat01_code == "00710",
                     cat02_code %in% c("000", "001", "002")) %>%
@@ -107,6 +107,10 @@ collect_jinkou_raw <- function(year, appid) {
         area_code == "12229" & area == intToUtf8(c(34966, 12534, 28006, 24066)),
         intToUtf8(c(34966, 12465, 28006, 24066)),
         area))
+  } else if (year == "2005") {
+    df_raw %>%
+      dplyr::filter(cat01_code == "00700") %>%
+      select_jinkou_cols()
   }
 }
 
