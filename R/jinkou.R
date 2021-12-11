@@ -138,7 +138,7 @@ collect_jinkou_age_raw <- function(year, appid) {
   } else if (year == "2015") {
     df_raw %>%
       dplyr::filter(cat01_code == "00710",
-                    cat02_code == "0000",
+                    cat04_code == "0000",
                     unit == intToUtf8(20154),
                     cat04_code == "0000") %>%
       dplyr::select(5:8, 11:12, 16) %>%
