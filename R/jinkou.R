@@ -5,9 +5,14 @@
 #' @param year year
 #' @param appid application id
 #' @param cache save to cache
+#' @param .area Limit the output area. The default is "all".
+#' You can select "prefecture" and "city" as options.
 #' @rdname jinkou
 #' @export
-get_jinkou <- function(year, appid = NULL, cache = TRUE) {
+get_jinkou <- function(year, appid = NULL, cache = TRUE, .area = "all") {
+  .area <-
+    rlang::arg_match(.area,
+                     c("all", "prefecture", "city"))
   if (cache) {
     cache_dir <- rappdirs::user_cache_dir("jpops")
     if (!file.exists(cache_dir)) {
@@ -23,16 +28,32 @@ get_jinkou <- function(year, appid = NULL, cache = TRUE) {
                            appid = appid)
       saveRDS(out, file = file_loc)
     }
-    out
   } else {
-    collect_jinkou_raw(year = year,
+    out <-
+      collect_jinkou_raw(year = year,
                        appid = appid)
   }
+  if (.area != "all") {
+    if (.area == "prefecture") {
+      out <-
+        out %>%
+        area_filter(area = "prefecture")
+    }
+    if (.area == "city") {
+      out <-
+        out %>%
+        area_filter(area = "city")
+    }
+  }
+  out
 }
 
 #' @rdname jinkou
 #' @export
-get_jinkou_age <- function(year, appid = NULL, cache = TRUE) {
+get_jinkou_age <- function(year, appid = NULL, cache = TRUE, .area = "all") {
+  .area <-
+    rlang::arg_match(.area,
+                     c("all", "prefecture", "city"))
   if (cache) {
     cache_dir <- rappdirs::user_cache_dir("jpops")
     file_loc <- file.path(cache_dir,
@@ -45,10 +66,23 @@ get_jinkou_age <- function(year, appid = NULL, cache = TRUE) {
         collect_jinkou_age_raw(year, appid)
       saveRDS(out, file_loc)
     }
-    out
   } else {
-    collect_jinkou_age_raw(year, appid)
+    out <-
+      collect_jinkou_age_raw(year, appid)
   }
+  if (.area != "all") {
+    if (.area == "prefecture") {
+      out <-
+        out %>%
+        area_filter(area = "prefecture")
+    }
+    if (.area == "city") {
+      out <-
+        out %>%
+        area_filter(area = "city")
+    }
+  }
+  out
 }
 
 survey_year_dataid <- list(
@@ -110,7 +144,8 @@ collect_jinkou_raw <- function(year, appid) {
   } else if (year == "2005") {
     df_raw %>%
       dplyr::filter(cat01_code == "00700") %>%
-      select_jinkou_cols()
+      select_jinkou_cols() %>%
+      dplyr::mutate(gender = conv_gender_vars(gender))
   }
 }
 

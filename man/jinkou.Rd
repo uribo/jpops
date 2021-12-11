@@ -5,9 +5,9 @@
 \alias{get_jinkou_age}
 \title{Obtain data for the Population Census}
 \usage{
-get_jinkou(year, appid = NULL, cache = TRUE)
+get_jinkou(year, appid = NULL, cache = TRUE, .area = "all")
 
-get_jinkou_age(year, appid = NULL, cache = TRUE)
+get_jinkou_age(year, appid = NULL, cache = TRUE, .area = "all")
 }
 \arguments{
 \item{year}{year}
@@ -15,6 +15,9 @@ get_jinkou_age(year, appid = NULL, cache = TRUE)
 \item{appid}{application id}
 
 \item{cache}{save to cache}
+
+\item{.area}{Limit the output area. The default is "all".
+You can select "prefecture" and "city" as options.}
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
