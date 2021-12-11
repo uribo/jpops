@@ -38,8 +38,7 @@ get_jinkou <- function(year, appid = NULL, cache = TRUE, .area = "all") {
       out <-
         out %>%
         area_filter(area = "prefecture")
-    }
-    if (.area == "city") {
+    } else if (.area == "city") {
       out <-
         out %>%
         area_filter(area = "city")
@@ -75,8 +74,7 @@ get_jinkou_age <- function(year, appid = NULL, cache = TRUE, .area = "all") {
       out <-
         out %>%
         area_filter(area = "prefecture")
-    }
-    if (.area == "city") {
+    } else if (.area == "city") {
       out <-
         out %>%
         area_filter(area = "city")
