@@ -217,6 +217,7 @@ collect_jinkou_age_raw <- function(year, appid) {
       dplyr::select(3:8, 12) %>%
       dplyr::rename(gender = 4,
                     age = 2,
-                    area = 6)
+                    area = 6) %>%
+      dplyr::mutate(gender = conv_gender_vars(gender))
   }
 }
