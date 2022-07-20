@@ -6,7 +6,7 @@
 \alias{jpops-package}
 \title{jpops: Provides a Data Set on the Population in Japan}
 \description{
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
 Information on the population and household registers, as published by the census and each local authority. The acquired data will be returned in a tidy format.
 }
