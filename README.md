@@ -23,9 +23,9 @@ idは各自で取得してください。
 パッケージは現在CRANには登録されていません。次のコマンドを実行してインストールをしてください。
 
 ``` r
-if (!requireNamespace("remotes"))
-   install.packages("remotes")
-remotes::install_github("uribo/jpops")
+install.packages(
+   "jpops", 
+   repos = c(mm = "https://uribo.r-universe.dev", getOption("repos")))
 ```
 
 ## 特徴
