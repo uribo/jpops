@@ -4,6 +4,5 @@
 #' @rdname reset_cache
 #' @export
 reset_cache <- function() {
-  unlink(rappdirs::user_cache_dir("jpops"),
-         recursive = TRUE)
+  unlink(rappdirs::user_cache_dir("jpops"), recursive = TRUE)
 }

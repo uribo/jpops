@@ -10,8 +10,21 @@
 
 Information on the population and household registers, as published by the census and each local authority. The acquired data will be returned in a tidy format.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/uribo/jpops}
+  \item Report bugs at \url{https://github.com/uribo/jpops/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Shinya Uryu \email{suika1127@gmail.com} (\href{https://orcid.org/0000-0002-0493-6186}{ORCID})
+
+Authors:
+\itemize{
+  \item Shinya Uryu \email{suika1127@gmail.com} (\href{https://orcid.org/0000-0002-0493-6186}{ORCID})
+}
 
 }
 \keyword{internal}
