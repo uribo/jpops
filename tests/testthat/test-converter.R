@@ -1,7 +1,7 @@
 test_that("conv_gender_vars normalizes Japanese gender labels", {
-  total <- intToUtf8(c(32207, 25968))
-  male <- intToUtf8(30007)
-  female <- intToUtf8(22899)
+  total <- "\u7dcf\u6570"
+  male <- "\u7537"
+  female <- "\u5973"
 
   expect_equal(
     conv_gender_vars(c(total, male, female)),
@@ -14,11 +14,11 @@ test_that("conv_gender_vars normalizes Japanese gender labels", {
 })
 
 test_that("conv_age_vars normalizes only cross-year special labels", {
-  total <- intToUtf8(c(32207, 25968))
-  total_age <- intToUtf8(c(32207, 25968, 65288, 24180, 40802, 65289))
-  unknown <- intToUtf8(c(19981, 35443))
-  age_unknown <- intToUtf8(c(24180, 40802, 12300, 19981, 35443, 12301))
-  age_zero <- intToUtf8(c(48, 27507))
+  total <- "\u7dcf\u6570"
+  total_age <- "\u7dcf\u6570\uff08\u5e74\u9f62\uff09"
+  unknown <- "\u4e0d\u8a73"
+  age_unknown <- "\u5e74\u9f62\u300c\u4e0d\u8a73\u300d"
+  age_zero <- "0\u6b73"
 
   expect_equal(
     conv_age_vars(c(total, total_age, unknown, age_unknown, age_zero, NA)),

@@ -3,10 +3,10 @@ test_that("Population Census tables retain normalized labels", {
   skip_if(Sys.getenv("JPOPS_RUN_API_TESTS") != "true")
   skip_on_ci()
 
-  total <- intToUtf8(c(32207, 25968))
-  unknown <- intToUtf8(c(19981, 35443))
-  age_unknown <- intToUtf8(c(24180, 40802, 12300, 19981, 35443, 12301))
-  age_zero <- intToUtf8(c(48, 27507))
+  total <- "\u7dcf\u6570"
+  unknown <- "\u4e0d\u8a73"
+  age_unknown <- "\u5e74\u9f62\u300c\u4e0d\u8a73\u300d"
+  age_zero <- "0\u6b73"
   total_columns <- c("gender", "area_code", "area", "value")
   age_columns <- c("gender", "area_code", "area", "age", "value")
 

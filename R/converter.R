@@ -9,18 +9,15 @@ conv_gender_vars <- function(x, lang = "ja") {
   lang <- rlang::arg_match(lang, c("ja", "en"))
   if (lang == "ja") {
     dplyr::case_when(
-      stringr::str_detect(x, intToUtf8(c(32207, 25968))) ~ intToUtf8(c(
-        32207,
-        25968
-      )),
-      stringr::str_detect(x, intToUtf8(30007)) ~ intToUtf8(30007),
-      stringr::str_detect(x, intToUtf8(22899)) ~ intToUtf8(22899)
+      stringr::str_detect(x, JPOPS_LABEL_TOTAL) ~ JPOPS_LABEL_TOTAL,
+      stringr::str_detect(x, JPOPS_LABEL_MALE) ~ JPOPS_LABEL_MALE,
+      stringr::str_detect(x, JPOPS_LABEL_FEMALE) ~ JPOPS_LABEL_FEMALE
     )
   } else if (lang == "en") {
     dplyr::case_when(
-      stringr::str_detect(x, intToUtf8(c(32207, 25968))) ~ "total",
-      stringr::str_detect(x, intToUtf8(30007)) ~ "male",
-      stringr::str_detect(x, intToUtf8(22899)) ~ "female"
+      stringr::str_detect(x, JPOPS_LABEL_TOTAL) ~ "total",
+      stringr::str_detect(x, JPOPS_LABEL_MALE) ~ "male",
+      stringr::str_detect(x, JPOPS_LABEL_FEMALE) ~ "female"
     )
   }
 }
@@ -32,14 +29,9 @@ conv_gender_vars <- function(x, lang = "ja") {
 #' @param x variable
 #' @export
 conv_age_vars <- function(x) {
-  total <- intToUtf8(c(32207, 25968))
-  total_age <- intToUtf8(c(32207, 25968, 65288, 24180, 40802, 65289))
-  unknown <- intToUtf8(c(19981, 35443))
-  age_unknown <- intToUtf8(c(24180, 40802, 12300, 19981, 35443, 12301))
-
   dplyr::case_when(
-    x == total_age ~ total,
-    x == age_unknown ~ unknown,
+    x == JPOPS_LABEL_TOTAL_AGE ~ JPOPS_LABEL_TOTAL,
+    x == JPOPS_LABEL_AGE_UNKNOWN ~ JPOPS_LABEL_UNKNOWN,
     TRUE ~ x
   )
 }

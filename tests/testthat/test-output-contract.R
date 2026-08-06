@@ -1,5 +1,5 @@
 make_total_fixture <- function(year) {
-  gender <- rep(intToUtf8(c(32207, 25968)), 2L)
+  gender <- rep("\u7dcf\u6570", 2L)
   area_code <- c("01000", "01100")
   area <- c("prefecture", "city")
   value <- c(100, 50)
@@ -38,11 +38,11 @@ make_total_fixture <- function(year) {
 }
 
 make_age_fixture <- function(year) {
-  gender <- rep(intToUtf8(c(32207, 25968)), 2L)
-  age <- rep(intToUtf8(c(48, 27507)), 2L)
+  gender <- rep("\u7dcf\u6570", 2L)
+  age <- rep("0\u6b73", 2L)
   area_code <- c("01000", "01100")
   area <- c("prefecture", "city")
-  unit <- rep(intToUtf8(20154), 2L)
+  unit <- rep("\u4eba", 2L)
   value <- c(10, 5)
 
   if (year == "2020") {

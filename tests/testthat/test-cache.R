@@ -13,7 +13,7 @@ test_that("get_jinkou_age uses the v4 processed cache", {
         gender = "total",
         area_code = "01000",
         area = "prefecture",
-        age = intToUtf8(c(19981, 35443)),
+        age = "\u4e0d\u8a73",
         value = calls$count
       )
     },
@@ -45,7 +45,7 @@ test_that("get_jinkou_age bypasses caches when cache is false", {
         gender = "total",
         area_code = "01000",
         area = "prefecture",
-        age = intToUtf8(c(19981, 35443)),
+        age = "\u4e0d\u8a73",
         value = calls$count
       )
     },

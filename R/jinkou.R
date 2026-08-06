@@ -141,8 +141,8 @@ collect_jinkou_raw <- function(year, appid) {
       dplyr::mutate(
         area = dplyr::if_else(
           area_code == "12229" &
-            area == intToUtf8(c(34966, 12534, 28006, 24066)),
-          intToUtf8(c(34966, 12465, 28006, 24066)),
+            area == JPOPS_AREA_SODEGAURA_SMALL_KE,
+          JPOPS_AREA_SODEGAURA_KE,
           area
         )
       )
@@ -186,7 +186,7 @@ collect_jinkou_age_raw <- function(year, appid, cache = TRUE) {
       dplyr::filter(
         cat01_code == "00710",
         cat04_code == "0000",
-        unit == intToUtf8(20154)
+        unit == JPOPS_UNIT_PERSON
       ) |>
       dplyr::select(5:8, 11:12, 16) |>
       dplyr::rename(gender = 4, age = 2, area = 6) |>
@@ -199,7 +199,7 @@ collect_jinkou_age_raw <- function(year, appid, cache = TRUE) {
     df_raw |>
       dplyr::filter(
         cat01_code == "00710",
-        unit == intToUtf8(20154),
+        unit == JPOPS_UNIT_PERSON,
         cat03_code == "000"
       ) |>
       dplyr::select(5:6, 9:10, 11:12, 16) |>
