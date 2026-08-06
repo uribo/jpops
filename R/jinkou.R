@@ -109,11 +109,10 @@ collect_jinkou_raw <- function(year, appid) {
   value <- NULL
   year <- as.character(year)
   year <- rlang::arg_match(year, as.character(seq.int(2000, 2020, by = 5)))
-  df_raw <-
-    estatapi::estat_getStatsData(
-      appId = appid,
-      statsDataId = survey_year_dataid$total[year]
-    )
+  df_raw <- fetch_estat_table(
+    stats_data_id = survey_year_dataid$total[year],
+    appid = appid
+  )
   if (year == "2020") {
     df_raw |>
       select_jinkou_cols()
@@ -160,11 +159,10 @@ collect_jinkou_age_raw <- function(year, appid) {
     df_raw <-
       readRDS(file_loc)
   } else {
-    df_raw <-
-      estatapi::estat_getStatsData(
-        appId = appid,
-        statsDataId = survey_year_dataid$age[year]
-      )
+    df_raw <- fetch_estat_table(
+      stats_data_id = survey_year_dataid$age[year],
+      appid = appid
+    )
     saveRDS(df_raw, file_loc)
   }
   if (year == "2020") {
