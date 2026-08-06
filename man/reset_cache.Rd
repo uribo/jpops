@@ -7,5 +7,5 @@
 reset_cache()
 }
 \description{
-Remove all package cache files.
+Remove all processed and raw package cache files.
 }
