@@ -7,6 +7,7 @@
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/uribo/jpops/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/uribo/jpops/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/jpops)](https://CRAN.R-project.org/package=jpops)
 [![Lifecycle:
