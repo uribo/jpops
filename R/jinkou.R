@@ -49,7 +49,7 @@ get_jinkou_age <- function(year, appid = NULL, cache = TRUE, .area = "all") {
     rlang::arg_match(.area, c("all", "prefecture", "city"))
   if (cache) {
     cache_dir <- jpops_cache_dir(create = TRUE)
-    file_loc <- file.path(cache_dir, paste0("jinkou_age_", year, "_v2.rds"))
+    file_loc <- file.path(cache_dir, paste0("jinkou_age_", year, "_v3.rds"))
     if (file.exists(file_loc)) {
       out <-
         readRDS(file_loc)
@@ -175,7 +175,8 @@ collect_jinkou_age_raw <- function(year, appid, cache = TRUE) {
     df_raw |>
       dplyr::filter(cat01_code == "0") |>
       dplyr::select(5:10, 14) |>
-      dplyr::rename(gender = 2, age = 4, area = 6)
+      dplyr::rename(gender = 2, age = 4, area = 6) |>
+      dplyr::mutate(age = conv_age_vars(age))
   } else if (year == "2015") {
     df_raw |>
       dplyr::filter(
@@ -187,20 +188,7 @@ collect_jinkou_age_raw <- function(year, appid, cache = TRUE) {
       dplyr::rename(gender = 4, age = 2, area = 6) |>
       dplyr::mutate(
         gender = conv_gender_vars(gender),
-        age = dplyr::if_else(
-          stringr::str_detect(
-            age,
-            paste0(
-              "(",
-              intToUtf8(c(32207, 25968)),
-              "|",
-              intToUtf8(c(24180, 40802)),
-              ")"
-            )
-          ),
-          intToUtf8(c(32207, 25968)),
-          age
-        )
+        age = conv_age_vars(age)
       )
   } else if (year == "2010") {
     df_raw |>
@@ -213,27 +201,17 @@ collect_jinkou_age_raw <- function(year, appid, cache = TRUE) {
       dplyr::rename(gender = 2, age = 4, area = 6) |>
       dplyr::mutate(
         gender = conv_gender_vars(gender),
-        age = dplyr::if_else(
-          stringr::str_detect(
-            age,
-            paste0(
-              "(",
-              intToUtf8(c(32207, 25968)),
-              "|",
-              intToUtf8(c(24180, 40802)),
-              ")"
-            )
-          ),
-          intToUtf8(c(32207, 25968)),
-          age
-        )
+        age = conv_age_vars(age)
       )
   } else if (year == "2005") {
     df_raw |>
       dplyr::filter(cat01_code == "00700") |>
       dplyr::select(3:8, 12) |>
       dplyr::rename(gender = 4, age = 2, area = 6) |>
-      dplyr::mutate(gender = conv_gender_vars(gender))
+      dplyr::mutate(
+        gender = conv_gender_vars(gender),
+        age = conv_age_vars(age)
+      )
   } else {
     rlang::abort("No formatter is available for the selected survey year.")
   }

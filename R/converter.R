@@ -24,3 +24,22 @@ conv_gender_vars <- function(x, lang = "ja") {
     )
   }
 }
+
+#' Convert e-Stat's age labels
+#'
+#' @description
+#' Normalize age labels that differ between Population Census tables.
+#' @param x variable
+#' @export
+conv_age_vars <- function(x) {
+  total <- intToUtf8(c(32207, 25968))
+  total_age <- intToUtf8(c(32207, 25968, 65288, 24180, 40802, 65289))
+  unknown <- intToUtf8(c(19981, 35443))
+  age_unknown <- intToUtf8(c(24180, 40802, 12300, 19981, 35443, 12301))
+
+  dplyr::case_when(
+    x == total_age ~ total,
+    x == age_unknown ~ unknown,
+    TRUE ~ x
+  )
+}
