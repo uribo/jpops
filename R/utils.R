@@ -14,3 +14,12 @@ jpops_cache_dir <- function(create = FALSE) {
   }
   cache_dir
 }
+
+jpops_processed_cache_file <- function(year, table_kind, create = FALSE) {
+  table_kind <- rlang::arg_match(table_kind, c("total", "age"))
+  cache_version <- c(total = 1L, age = 4L)[[table_kind]]
+  prefix <- if (table_kind == "total") "jinkou_" else "jinkou_age_"
+  file_name <- paste0(prefix, year, "_v", cache_version, ".rds")
+
+  file.path(jpops_cache_dir(create = create), file_name)
+}

@@ -7,6 +7,8 @@ test_that("Population Census tables retain normalized labels", {
   unknown <- intToUtf8(c(19981, 35443))
   age_unknown <- intToUtf8(c(24180, 40802, 12300, 19981, 35443, 12301))
   age_zero <- intToUtf8(c(48, 27507))
+  total_columns <- c("gender", "area_code", "area", "value")
+  age_columns <- c("gender", "area_code", "area", "age", "value")
 
   for (year in c(2020, 2015, 2010, 2005)) {
     age_data <- get_jinkou_age(
@@ -22,6 +24,8 @@ test_that("Population Census tables retain normalized labels", {
 
     expect_true(all(c(total, unknown, age_zero) %in% unique(age_data$age)))
     expect_false(age_unknown %in% unique(age_data$age))
+    expect_identical(names(age_data), age_columns)
+    expect_identical(names(total_data), total_columns)
     expect_gt(nrow(total_data), 0L)
   }
 
