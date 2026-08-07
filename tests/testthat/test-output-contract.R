@@ -192,21 +192,27 @@ test_that("binding survey years does not introduce schema-specific columns", {
 
 test_that("area filtering works with the public output columns", {
   fixtures <- mock_estat_fixtures()
+  area_meta <- normalize_estat_area_meta(make_area_meta_fixture())
   local_mocked_bindings(
     fetch_estat_table = function(stats_data_id, appid, ...) {
       fixtures[[unname(stats_data_id)]]
     },
+    collect_estat_area_meta = function(stats_data_id, appid, cache) area_meta,
     .package = "jpops"
   )
 
   prefecture <- get_jinkou(2020, cache = FALSE, .area = "prefecture")
-  city <- get_jinkou_age(2020, cache = FALSE, .area = "city")
+  municipality <- get_jinkou_age(
+    2020,
+    cache = FALSE,
+    .area = "municipality"
+  )
 
   expect_identical(prefecture$area_code, "01000")
-  expect_identical(city$area_code, "01100")
+  expect_identical(municipality$area_code, "01100")
   expect_identical(names(prefecture), c("gender", "area_code", "area", "value"))
   expect_identical(
-    names(city),
+    names(municipality),
     c("gender", "area_code", "area", "age", "value")
   )
 })

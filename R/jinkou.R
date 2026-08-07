@@ -3,16 +3,37 @@
 #' @description
 #' \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}
 #' @param year year
-#' @param appid application id
-#' @param cache save to cache
-#' @param .area Limit the output area. The default is "all".
-#' You can select "prefecture" and "city" as options.
+#' @param appid e-Stat application ID. Area filtering for `"all"` and
+#'   `"prefecture"` never needs an application ID or area metadata. Fetching
+#'   uncached population data from e-Stat still needs an application ID.
+#'   In addition, `"municipality"`, `"ward"`, and the deprecated `"city"`
+#'   alias need one on first use if no area metadata cache exists for the
+#'   selected statistical table. Once that metadata cache exists, it can be
+#'   reused with `appid = NULL` when the population data is also available
+#'   locally. With `cache = FALSE`, these three values always need an
+#'   application ID.
+#' @param cache Whether to read and write package caches.
+#' @param .area Area detail to return. The canonical values are `"all"`,
+#'   `"prefecture"`, `"municipality"`, and `"ward"`.
+#'
+#'   `"all"` contains overlapping parent and child areas and must not be
+#'   summed. `"prefecture"` returns the 47 prefectures. `"municipality"`
+#'   returns ordinary cities, designated cities as single units, Tokyo's
+#'   special-ward area as one unit, and towns and villages. It excludes the 23
+#'   individual Tokyo special wards, wards of designated cities, and historical
+#'   municipalities based on year-2000 boundaries. It is therefore coarser than
+#'   the everyday sense of municipalities in Tokyo. `"ward"` uses the same
+#'   frontier but splits designated cities into wards and Tokyo's special-ward
+#'   area into the 23 individual special wards.
+#'
+#'   `"city"` is deprecated for one release and is an alias for
+#'   `"municipality"`. Its meaning changed: it formerly returned overlapping
+#'   parent and child areas, so results and totals will change.
 #' @rdname jinkou
 #' @export
 get_jinkou <- function(year, appid = NULL, cache = TRUE, .area = "all") {
   year <- match_survey_year(year, "total")
-  .area <-
-    rlang::arg_match(.area, c("all", "prefecture", "city"))
+  .area <- match_jinkou_area(.area)
   if (cache) {
     file_loc <- jpops_processed_cache_file(year, "total", create = TRUE)
     if (file.exists(file_loc)) {
@@ -26,26 +47,14 @@ get_jinkou <- function(year, appid = NULL, cache = TRUE, .area = "all") {
     out <-
       collect_jinkou_raw(year = year, appid = appid)
   }
-  if (.area != "all") {
-    if (.area == "prefecture") {
-      out <-
-        out |>
-        area_filter(area = "prefecture")
-    } else if (.area == "city") {
-      out <-
-        out |>
-        area_filter(area = "city")
-    }
-  }
-  out
+  filter_jinkou_area(out, year, "total", appid, cache, .area)
 }
 
 #' @rdname jinkou
 #' @export
 get_jinkou_age <- function(year, appid = NULL, cache = TRUE, .area = "all") {
   year <- match_survey_year(year, "age")
-  .area <-
-    rlang::arg_match(.area, c("all", "prefecture", "city"))
+  .area <- match_jinkou_area(.area)
   if (cache) {
     file_loc <- jpops_processed_cache_file(year, "age", create = TRUE)
     if (file.exists(file_loc)) {
@@ -60,18 +69,17 @@ get_jinkou_age <- function(year, appid = NULL, cache = TRUE, .area = "all") {
     out <-
       collect_jinkou_age_raw(year, appid, cache = FALSE)
   }
-  if (.area != "all") {
-    if (.area == "prefecture") {
-      out <-
-        out |>
-        area_filter(area = "prefecture")
-    } else if (.area == "city") {
-      out <-
-        out |>
-        area_filter(area = "city")
-    }
+  filter_jinkou_area(out, year, "age", appid, cache, .area)
+}
+
+filter_jinkou_area <- function(df, year, table_kind, appid, cache, area) {
+  if (!area %in% c("municipality", "ward")) {
+    return(area_filter(df, area))
   }
-  out
+
+  stats_data_id <- unname(survey_year_dataid[[table_kind]][[year]])
+  area_meta <- collect_estat_area_meta(stats_data_id, appid, cache)
+  area_filter(df, area, area_meta)
 }
 
 survey_year_dataid <- list(
