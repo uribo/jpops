@@ -26,18 +26,7 @@ get_jinkou <- function(year, appid = NULL, cache = TRUE, .area = "all") {
     out <-
       collect_jinkou_raw(year = year, appid = appid)
   }
-  if (.area != "all") {
-    if (.area == "prefecture") {
-      out <-
-        out |>
-        area_filter(area = "prefecture")
-    } else if (.area == "city") {
-      out <-
-        out |>
-        area_filter(area = "city")
-    }
-  }
-  out
+  filter_jinkou_area(out, .area)
 }
 
 #' @rdname jinkou
@@ -60,18 +49,11 @@ get_jinkou_age <- function(year, appid = NULL, cache = TRUE, .area = "all") {
     out <-
       collect_jinkou_age_raw(year, appid, cache = FALSE)
   }
-  if (.area != "all") {
-    if (.area == "prefecture") {
-      out <-
-        out |>
-        area_filter(area = "prefecture")
-    } else if (.area == "city") {
-      out <-
-        out |>
-        area_filter(area = "city")
-    }
-  }
-  out
+  filter_jinkou_area(out, .area)
+}
+
+filter_jinkou_area <- function(df, area) {
+  area_filter(df, area)
 }
 
 survey_year_dataid <- list(

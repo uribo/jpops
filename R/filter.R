@@ -1,34 +1,17 @@
 area_filter <- function(df, area) {
   area_code <- NULL
-  if (area == "prefecture") {
-    out <-
-      df |>
-      dplyr::filter(
-        stringr::str_detect(
-          area_code,
-          paste0(
-            stringr::str_pad(seq.int(1, 47), width = 2, pad = "0"),
-            "000",
-            collapse = "|"
-          )
-        ),
-        area_code != "00000"
-      )
-  } else if (area == "city") {
-    out <-
-      df |>
-      dplyr::filter(
-        stringr::str_detect(
-          area_code,
-          paste0(
-            stringr::str_pad(seq.int(1, 47), width = 2, pad = "0"),
-            "000",
-            collapse = "|"
-          ),
-          negate = TRUE
-        ),
-        area_code != "00000"
-      )
+  area <- rlang::arg_match(area, c("all", "prefecture", "city"))
+  if (area == "all") {
+    return(df)
   }
-  out
+
+  prefecture_codes <- sprintf("%02d000", seq_len(47L))
+  if (area == "prefecture") {
+    return(dplyr::filter(df, area_code %in% prefecture_codes))
+  }
+
+  dplyr::filter(
+    df,
+    !area_code %in% c("00000", prefecture_codes)
+  )
 }
