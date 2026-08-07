@@ -92,3 +92,20 @@ test_that("get_jinkou uses the v1 processed cache and bypasses it", {
   expect_true(file.exists(file.path(cache_dir, "jinkou_2020_v1.rds")))
   expect_false(file.exists(file.path(cache_dir, "jinkou_2020.rds")))
 })
+
+test_that("processed population cache file names remain unchanged", {
+  cache_dir <- withr::local_tempdir()
+  local_mocked_bindings(
+    jpops_cache_dir = function(create = FALSE) cache_dir,
+    .package = "jpops"
+  )
+
+  expect_identical(
+    basename(jpops_processed_cache_file(2020, "total")),
+    "jinkou_2020_v1.rds"
+  )
+  expect_identical(
+    basename(jpops_processed_cache_file(2020, "age")),
+    "jinkou_age_2020_v4.rds"
+  )
+})

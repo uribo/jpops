@@ -12,12 +12,34 @@ get_jinkou_age(year, appid = NULL, cache = TRUE, .area = "all")
 \arguments{
 \item{year}{year}
 
-\item{appid}{application id}
+\item{appid}{e-Stat application ID. Area filtering for \code{"all"} and
+\code{"prefecture"} never needs an application ID or area metadata. Fetching
+uncached population data from e-Stat still needs an application ID.
+In addition, \code{"municipality"}, \code{"ward"}, and the deprecated \code{"city"}
+alias need one on first use if no area metadata cache exists for the
+selected statistical table. Once that metadata cache exists, it can be
+reused with \code{appid = NULL} when the population data is also available
+locally. With \code{cache = FALSE}, these three values always need an
+application ID.}
 
-\item{cache}{save to cache}
+\item{cache}{Whether to read and write package caches.}
 
-\item{.area}{Limit the output area. The default is "all".
-You can select "prefecture" and "city" as options.}
+\item{.area}{Area detail to return. The canonical values are \code{"all"},
+\code{"prefecture"}, \code{"municipality"}, and \code{"ward"}.
+
+\code{"all"} contains overlapping parent and child areas and must not be
+summed. \code{"prefecture"} returns the 47 prefectures. \code{"municipality"}
+returns ordinary cities, designated cities as single units, Tokyo's
+special-ward area as one unit, and towns and villages. It excludes the 23
+individual Tokyo special wards, wards of designated cities, and historical
+municipalities based on year-2000 boundaries. It is therefore coarser than
+the everyday sense of municipalities in Tokyo. \code{"ward"} uses the same
+frontier but splits designated cities into wards and Tokyo's special-ward
+area into the 23 individual special wards.
+
+\code{"city"} is deprecated for one release and is an alias for
+\code{"municipality"}. Its meaning changed: it formerly returned overlapping
+parent and child areas, so results and totals will change.}
 }
 \description{
 \Sexpr[results=rd, stage=render]{lifecycle::badge("experimental")}

@@ -35,13 +35,13 @@ test_that("Population Census tables retain normalized labels", {
     cache = FALSE,
     .area = "prefecture"
   )
-  city_data <- get_jinkou(
+  municipality_data <- get_jinkou(
     2020,
     appid = Sys.getenv("ESTAT_TOKEN"),
     cache = FALSE,
-    .area = "city"
+    .area = "municipality"
   )
 
   expect_gt(nrow(prefecture_data), 0L)
-  expect_gt(nrow(city_data), 0L)
+  expect_gt(nrow(municipality_data), 0L)
 })

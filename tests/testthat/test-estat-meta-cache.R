@@ -166,6 +166,31 @@ test_that("cache false always fetches and never reads or writes caches", {
   expect_identical(list.files(cache_dir), initial_files)
 })
 
+test_that("metadata fetching explains when appid is required", {
+  cache_dir <- withr::local_tempdir()
+  fetches <- 0L
+  local_mocked_bindings(
+    jpops_cache_dir = function(create = FALSE) cache_dir,
+    fetch_estat_meta = function(...) {
+      fetches <<- fetches + 1L
+      stop("must not fetch without an appid")
+    },
+    .package = "jpops"
+  )
+
+  expect_error(
+    collect_estat_area_meta("0003149040", NULL, cache = TRUE),
+    "need it on first use when no metadata cache exists",
+    class = "jpops_estat_meta_appid_error"
+  )
+  expect_error(
+    collect_estat_area_meta("0003149040", NULL, cache = FALSE),
+    "with `cache = FALSE`, they always need it",
+    class = "jpops_estat_meta_appid_error"
+  )
+  expect_identical(fetches, 0L)
+})
+
 test_that("corrupted area cache fails without fallback", {
   cache_dir <- withr::local_tempdir()
   area_file <- file.path(cache_dir, "estat_area_meta_0003149040_v1.rds")
@@ -265,7 +290,7 @@ test_that("area metadata stripped of its validation attribute is rejected", {
     .package = "jpops"
   )
 
-  area_meta <- collect_estat_area_meta("0000000001", appid = NULL)
+  area_meta <- collect_estat_area_meta("0000000001", appid = "test-appid")
   attr(area_meta, "jpops_area_meta_validated") <- NULL
   saveRDS(area_meta, jpops_estat_meta_cache_file("0000000001", "area"))
 
