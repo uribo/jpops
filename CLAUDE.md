@@ -15,7 +15,7 @@ README.md は README.Rmd から生成される（`devtools::build_readme()`）�
 ```r
 devtools::load_all()      # 読み込み
 devtools::document()      # roxygen2 で man/ と NAMESPACE を再生成
-devtools::test()          # 現状 32 passed / 1 skipped（API を叩くテスト）
+devtools::test()          # 現状 154 passed / 1 skipped（API を叩くテスト）
 devtools::check()         # 現状 0 errors / 0 warnings / 0 notes
 devtools::build_readme()
 ```
@@ -41,9 +41,13 @@ API を叩くテストは `ESTAT_TOKEN` と `JPOPS_RUN_API_TESTS` の両方が�
 2. **取得層** — `collect_jinkou_raw()` / `collect_jinkou_age_raw()` が内部アダプター `fetch_estat_table()`（[R/estat.R](R/estat.R)）経由で `estatapi::estat_getStatsData()` を呼ぶ
 3. **整形層** — 年ごとの分岐で列を選択・改名・値を正規化
 
+整形後には両関数共通の **地域選択層** がある。`"all"` と `"prefecture"` はメタ情報を使わず直接フィルタする。`"municipality"` と `"ward"` は `statsDataId` ごとの地域メタ情報を取得し、`normalize_estat_area_meta()` で正規化・構造検証・既知の安全な欠陥だけを警告付きで修復し、純粋関数 `classify_area_codes()` で階層フロンティアを分類してから人口表をフィルタする。処理の順序は「メタ情報取得 → 正規化・検証・限定修復 → 純粋な階層分類 → 人口表フィルタ」であり、`filter_jinkou_area()` が取得要否と正しい `statsDataId` を一元管理する。メタ情報を使うたびに、人口表の全 `area_code` がメタ情報に存在することも検査する。
+
 新しい調査を追加する場合はこの 3 層と、後述の年別 ID テーブル・列位置分岐の両方を触ることになる。
 
-出力の形を変えたら、処理済みキャッシュのバージョン（`jpops_processed_cache_file()` の `cache_version`）を上げること。上げないと古い形のキャッシュが黙って再利用される。
+出力の形を変えたら、処理済み人口キャッシュのバージョン（`jpops_processed_cache_file()` の `cache_version`）を上げること。上げないと古い形のキャッシュが黙って再利用される。地域フィルタの追加だけでは出力スキーマは変わらないため、現在のバージョンは `total = 1L`、`age = 4L` のままである。
+
+地域メタ情報は `jpops_estat_meta_cache_file()` が、上流をそのまま保存する `estat_meta_<statsDataId>_raw.rds` と、正規化・検証・修復済みの `estat_area_meta_<statsDataId>_v1.rds` を管理する。area正規形の列、階層の解釈、検証規則、修復規則を変えた場合は `area_cache_version` を上げる。rawキャッシュは版を付けず、正典からの再正規化経路として保持する。
 
 ### 年 → statsDataId のマッピング
 
@@ -76,12 +80,6 @@ e-Stat の返す表は調査年ごとに列の並び・`cat0N_code` の意味・
 ### data-raw/
 
 `data-raw/` は都道府県ごとのオープンデータ収集を試した**探索的スクリプト**で、パッケージから source されておらず、`data/` オブジェクトも生成していない（同梱データセットが無いため `LazyData` は削除済み。`data/` を追加する際に戻す）。ダウンロード行はコメントアウトされている。ここのコードは実装の参考であって動作保証されたものではない。air の整形対象からも外してある。
-
-## 既知の不整合（未修正）
-
-いずれも実物を確認済みで、意図的に未修正のまま残してある。
-
-1. **`area_filter()`** — 都道府県コードの判定が `%in%` ではなく非アンカーの `stringr::str_detect()` による部分一致。`area` が `"prefecture"` / `"city"` 以外だと未定義の `out` を返す。加えて `.area` の分岐が呼び出し側と `area_filter()` 内で二重になっている（`get_jinkou()` と `get_jinkou_age()` はほぼ同一で、まだ共通ヘルパへの抽出余地がある）。現状の挙動は `tests/testthat/test-filter.R` で固定してあるので、直すときに差分が見える。
 
 ## 保留中の判断
 
