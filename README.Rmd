@@ -69,7 +69,7 @@ library(jpops)
 `.area = "all"` と `"prefecture"` の地域フィルタは地域メタ情報を使わないため、そのための `appid` は不要です。ただし、処理済み人口キャッシュがなく、人口データ自体をe-Statから取得する場合は従来どおり `appid` が必要です。`"municipality"`、`"ward"`、非推奨の `"city"` は、これに加えて対象の `statsDataId` に対応する地域メタ情報キャッシュがなければ初回だけ `appid` が必要です。地域メタ情報と人口データがともにキャッシュされた後は `appid = NULL` で利用できますが、`cache = FALSE` では毎回 `appid` が必要です。
 
 ```{r, eval=FALSE, echo=TRUE}
-Sys.setenv("ESTAT_TOKEN") <- "{取得したapplication id}"
+Sys.setenv(ESTAT_TOKEN = "{取得したapplication id}")
 
 get_jinkou(2020, appid = Sys.getenv("ESTAT_TOKEN"))
 

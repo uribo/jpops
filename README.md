@@ -81,7 +81,7 @@ library(jpops)
 が必要です。
 
 ``` r
-Sys.setenv("ESTAT_TOKEN") <- "{取得したapplication id}"
+Sys.setenv(ESTAT_TOKEN = "{取得したapplication id}")
 
 get_jinkou(2020, appid = Sys.getenv("ESTAT_TOKEN"))
 
