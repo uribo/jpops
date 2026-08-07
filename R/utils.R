@@ -23,3 +23,25 @@ jpops_processed_cache_file <- function(year, table_kind, create = FALSE) {
 
   file.path(jpops_cache_dir(create = create), file_name)
 }
+
+jpops_estat_meta_cache_file <- function(
+  stats_data_id,
+  stage = c("raw", "area"),
+  create = FALSE
+) {
+  stage <- rlang::arg_match(stage)
+  area_cache_version <- 1L
+  file_name <- if (stage == "raw") {
+    paste0("estat_meta_", stats_data_id, "_raw.rds")
+  } else {
+    paste0(
+      "estat_area_meta_",
+      stats_data_id,
+      "_v",
+      area_cache_version,
+      ".rds"
+    )
+  }
+
+  file.path(jpops_cache_dir(create = create), file_name)
+}
