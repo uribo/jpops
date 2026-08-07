@@ -10,14 +10,11 @@
 #' @rdname jinkou
 #' @export
 get_jinkou <- function(year, appid = NULL, cache = TRUE, .area = "all") {
+  year <- match_survey_year(year, "total")
   .area <-
     rlang::arg_match(.area, c("all", "prefecture", "city"))
   if (cache) {
-    cache_dir <- rappdirs::user_cache_dir("jpops")
-    if (!file.exists(cache_dir)) {
-      dir.create(cache_dir, recursive = TRUE)
-    }
-    file_loc <- file.path(cache_dir, paste0("jinkou_", year, ".rds"))
+    file_loc <- jpops_processed_cache_file(year, "total", create = TRUE)
     if (file.exists(file_loc)) {
       out <- readRDS(file_loc)
     } else {
@@ -46,22 +43,22 @@ get_jinkou <- function(year, appid = NULL, cache = TRUE, .area = "all") {
 #' @rdname jinkou
 #' @export
 get_jinkou_age <- function(year, appid = NULL, cache = TRUE, .area = "all") {
+  year <- match_survey_year(year, "age")
   .area <-
     rlang::arg_match(.area, c("all", "prefecture", "city"))
   if (cache) {
-    cache_dir <- rappdirs::user_cache_dir("jpops")
-    file_loc <- file.path(cache_dir, paste0("jinkou_age_", year, ".rds"))
+    file_loc <- jpops_processed_cache_file(year, "age", create = TRUE)
     if (file.exists(file_loc)) {
       out <-
         readRDS(file_loc)
     } else {
       out <-
-        collect_jinkou_age_raw(year, appid)
+        collect_jinkou_age_raw(year, appid, cache = TRUE)
       saveRDS(out, file_loc)
     }
   } else {
     out <-
-      collect_jinkou_age_raw(year, appid)
+      collect_jinkou_age_raw(year, appid, cache = FALSE)
   }
   if (.area != "all") {
     if (.area == "prefecture") {
@@ -98,22 +95,30 @@ survey_year_dataid <- list(
   )
 )
 
+match_survey_year <- function(year, table_kind) {
+  year <- as.character(year)
+  rlang::arg_match(year, names(survey_year_dataid[[table_kind]]))
+}
+
 select_jinkou_cols <- function(df) {
-  cat01_code <- cat02_code <- area_code <- area <- gender <- NULL
+  area_code <- area <- gender <- NULL
   value <- NULL
-  dplyr::select(df, cat01_code, gender = 4, area_code, area = 6, value)
+  dplyr::select(df, gender = 4, area_code, area = 6, value)
+}
+
+select_jinkou_age_output <- function(df) {
+  area_code <- area <- gender <- age <- value <- NULL
+  dplyr::select(df, gender, area_code, area, age, value)
 }
 
 collect_jinkou_raw <- function(year, appid) {
   cat01_code <- cat02_code <- area_code <- area <- gender <- NULL
   value <- NULL
-  year <- as.character(year)
-  year <- rlang::arg_match(year, as.character(seq.int(2000, 2020, by = 5)))
-  df_raw <-
-    estatapi::estat_getStatsData(
-      appId = appid,
-      statsDataId = survey_year_dataid$total[year]
-    )
+  year <- match_survey_year(year, "total")
+  df_raw <- fetch_estat_table(
+    stats_data_id = survey_year_dataid$total[year],
+    appid = appid
+  )
   if (year == "2020") {
     df_raw |>
       select_jinkou_cols()
@@ -136,8 +141,8 @@ collect_jinkou_raw <- function(year, appid) {
       dplyr::mutate(
         area = dplyr::if_else(
           area_code == "12229" &
-            area == intToUtf8(c(34966, 12534, 28006, 24066)),
-          intToUtf8(c(34966, 12465, 28006, 24066)),
+            area == JPOPS_AREA_SODEGAURA_SMALL_KE,
+          JPOPS_AREA_SODEGAURA_KE,
           area
         )
       )
@@ -146,90 +151,75 @@ collect_jinkou_raw <- function(year, appid) {
       dplyr::filter(cat01_code == "00700") |>
       select_jinkou_cols() |>
       dplyr::mutate(gender = conv_gender_vars(gender))
+  } else {
+    rlang::abort("No formatter is available for the selected survey year.")
   }
 }
 
-collect_jinkou_age_raw <- function(year, appid) {
+collect_jinkou_age_raw <- function(year, appid, cache = TRUE) {
   tab_code <- cat01_code <- cat02_code <- cat03_code <- cat04_code <- NULL
   unit <- gender <- age <- NULL
-  year <- as.character(year)
-  year <- rlang::arg_match(year, as.character(seq.int(2000, 2020, by = 5)))
-  cache_dir <- rappdirs::user_cache_dir("jpops")
+  year <- match_survey_year(year, "age")
+  cache_dir <- jpops_cache_dir(create = cache)
   file_loc <- file.path(cache_dir, paste0("jinkou_age_", year, "_raw.rds"))
-  if (file.exists(file_loc)) {
+  if (cache && file.exists(file_loc)) {
     df_raw <-
       readRDS(file_loc)
   } else {
-    df_raw <-
-      estatapi::estat_getStatsData(
-        appId = appid,
-        statsDataId = survey_year_dataid$age[year]
-      )
-    saveRDS(df_raw, file_loc)
+    df_raw <- fetch_estat_table(
+      stats_data_id = survey_year_dataid$age[year],
+      appid = appid
+    )
+    if (cache) {
+      saveRDS(df_raw, file_loc)
+    }
   }
   if (year == "2020") {
     df_raw |>
       dplyr::filter(cat01_code == "0") |>
       dplyr::select(5:10, 14) |>
-      dplyr::rename(gender = 2, age = 4, area = 6)
+      dplyr::rename(gender = 2, age = 4, area = 6) |>
+      dplyr::mutate(age = conv_age_vars(age)) |>
+      select_jinkou_age_output()
   } else if (year == "2015") {
     df_raw |>
       dplyr::filter(
         cat01_code == "00710",
         cat04_code == "0000",
-        unit == intToUtf8(20154),
-        cat04_code == "0000"
+        unit == JPOPS_UNIT_PERSON
       ) |>
       dplyr::select(5:8, 11:12, 16) |>
       dplyr::rename(gender = 4, age = 2, area = 6) |>
       dplyr::mutate(
         gender = conv_gender_vars(gender),
-        age = dplyr::if_else(
-          stringr::str_detect(
-            age,
-            paste0(
-              "(",
-              intToUtf8(c(32207, 25968)),
-              "|",
-              intToUtf8(24180, 40802),
-              ")"
-            )
-          ),
-          intToUtf8(c(32207, 25968)),
-          age
-        )
-      )
+        age = conv_age_vars(age)
+      ) |>
+      select_jinkou_age_output()
   } else if (year == "2010") {
     df_raw |>
       dplyr::filter(
         cat01_code == "00710",
-        unit == intToUtf8(20154),
+        unit == JPOPS_UNIT_PERSON,
         cat03_code == "000"
       ) |>
       dplyr::select(5:6, 9:10, 11:12, 16) |>
       dplyr::rename(gender = 2, age = 4, area = 6) |>
       dplyr::mutate(
         gender = conv_gender_vars(gender),
-        age = dplyr::if_else(
-          stringr::str_detect(
-            age,
-            paste0(
-              "(",
-              intToUtf8(c(32207, 25968)),
-              "|",
-              intToUtf8(24180, 40802),
-              ")"
-            )
-          ),
-          intToUtf8(c(32207, 25968)),
-          age
-        )
-      )
+        age = conv_age_vars(age)
+      ) |>
+      select_jinkou_age_output()
   } else if (year == "2005") {
     df_raw |>
       dplyr::filter(cat01_code == "00700") |>
       dplyr::select(3:8, 12) |>
       dplyr::rename(gender = 4, age = 2, area = 6) |>
-      dplyr::mutate(gender = conv_gender_vars(gender))
+      dplyr::mutate(
+        gender = conv_gender_vars(gender),
+        age = conv_age_vars(age)
+      ) |>
+      select_jinkou_age_output()
+  } else {
+    rlang::abort("No formatter is available for the selected survey year.")
   }
 }

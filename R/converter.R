@@ -9,18 +9,29 @@ conv_gender_vars <- function(x, lang = "ja") {
   lang <- rlang::arg_match(lang, c("ja", "en"))
   if (lang == "ja") {
     dplyr::case_when(
-      stringr::str_detect(x, intToUtf8(c(32207, 25968))) ~ intToUtf8(c(
-        32207,
-        25968
-      )),
-      stringr::str_detect(x, intToUtf8(30007)) ~ intToUtf8(30007),
-      stringr::str_detect(x, intToUtf8(22899)) ~ intToUtf8(22899)
+      stringr::str_detect(x, JPOPS_LABEL_TOTAL) ~ JPOPS_LABEL_TOTAL,
+      stringr::str_detect(x, JPOPS_LABEL_MALE) ~ JPOPS_LABEL_MALE,
+      stringr::str_detect(x, JPOPS_LABEL_FEMALE) ~ JPOPS_LABEL_FEMALE
     )
   } else if (lang == "en") {
     dplyr::case_when(
-      stringr::str_detect(x, intToUtf8(c(32207, 25968))) ~ "total",
-      stringr::str_detect(x, intToUtf8(30007)) ~ "male",
-      stringr::str_detect(x, intToUtf8(22899)) ~ "female"
+      stringr::str_detect(x, JPOPS_LABEL_TOTAL) ~ "total",
+      stringr::str_detect(x, JPOPS_LABEL_MALE) ~ "male",
+      stringr::str_detect(x, JPOPS_LABEL_FEMALE) ~ "female"
     )
   }
+}
+
+#' Convert e-Stat's age labels
+#'
+#' @description
+#' Normalize age labels that differ between Population Census tables.
+#' @param x variable
+#' @export
+conv_age_vars <- function(x) {
+  dplyr::case_when(
+    x == JPOPS_LABEL_TOTAL_AGE ~ JPOPS_LABEL_TOTAL,
+    x == JPOPS_LABEL_AGE_UNKNOWN ~ JPOPS_LABEL_UNKNOWN,
+    TRUE ~ x
+  )
 }
