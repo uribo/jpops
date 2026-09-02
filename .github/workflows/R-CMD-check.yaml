@@ -26,10 +26,14 @@ jobs:
     # affected repository, so bound the job: a hung run should fail fast and be
     # re-runnable rather than read as "still running".
     #
-    # 30 minutes rather than the 60 used in jmastats. This package has no
-    # spatial stack to build from source, and every row of the observed matrix
-    # finishes in 1-2 minutes; 30 leaves room for a cold dependency cache while
-    # cutting the cost of a hang by an order of magnitude. If a cold run
+    # 30 minutes rather than the 60 used in jmastats: this package has no
+    # spatial stack to compile, so even a cold run stays well inside it.
+    #
+    # Read the observed times with the cache state attached, or the bound looks
+    # mis-set. Warm, every row lands in 1-2 minutes. Cold -- the state after a
+    # dependency change rotates the setup-r-dependencies cache key -- devel took
+    # 10 minutes and R 4.1 took 6, because neither has RSPM binaries. So 30 is
+    # 3x the observed cold maximum, not 15x the warm one. If a cold run
     # legitimately exceeds it, raise the number rather than removing the bound.
     timeout-minutes: 30
 
