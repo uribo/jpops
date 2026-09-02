@@ -8,9 +8,21 @@ name: air-format
 
 permissions: read-all
 
+# Supersede an in-flight run when a PR branch is pushed again: only the newest
+# commit's result carries information. Restricted to pull_request so a run on
+# the default branch is never cancelled -- that history is what the badge and
+# any release audit read.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   air-format:
     runs-on: ubuntu-latest
+    # Formatting check only; observed at well under a minute. Bounded for the
+    # same reason as R-CMD-check: the 6-hour default turns a hung action into
+    # 360 wasted runner-minutes.
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v6

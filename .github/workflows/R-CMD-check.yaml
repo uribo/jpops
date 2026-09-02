@@ -9,10 +9,29 @@ name: R-CMD-check
 
 permissions: read-all
 
+# Supersede an in-flight run when a PR branch is pushed again: only the newest
+# commit's result carries information. Restricted to pull_request so a run on
+# the default branch is never cancelled -- that history is what the badge and
+# any release audit read.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    # The default job timeout is 6 hours. r-lib/actions/setup-r@v2 stalled on
+    # 2026-08-19 and held runners until that cap, costing 360 runner-minutes per
+    # affected repository, so bound the job: a hung run should fail fast and be
+    # re-runnable rather than read as "still running".
+    #
+    # 30 minutes rather than the 60 used in jmastats. This package has no
+    # spatial stack to build from source, and every row of the observed matrix
+    # finishes in 1-2 minutes; 30 leaves room for a cold dependency cache while
+    # cutting the cost of a hang by an order of magnitude. If a cold run
+    # legitimately exceeds it, raise the number rather than removing the bound.
+    timeout-minutes: 30
 
     strategy:
       fail-fast: false
